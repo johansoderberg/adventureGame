@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Game.h"
 #include "HelpCommand.h"
+#include "TestCommand.h"
 #include <algorithm>
 
 
@@ -21,6 +22,7 @@ CGame::CGame(string playerName, CLocation* startingLocation)
 	_commands.push_back(new CQuitCommand(this));
 	_commands.push_back(new CAGExamineCommand(this));
 	_commands.push_back(new CAGGoCommand(this));
+	_commands.push_back(new CTestCommand(this));   // just for testing things.
 }
 
 
