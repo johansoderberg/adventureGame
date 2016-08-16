@@ -21,6 +21,17 @@ protected:
 	void addXMLEndTag(stringstream& ss, const int level, const bool prettyPrint) const;	
 };
 
+class MyException
+{
+public:
+	MyException(string message);
+	virtual ~MyException();
+	string getMessage();
+protected:
+	string _message;
+	
+};
+
 class CXMLBuilder
 {
 public:
@@ -28,12 +39,13 @@ public:
 	virtual ~CXMLBuilder();
 	void addElement(string elementName);
 	void finishElement();
-	void addAttribute(string &name, string &value);	
+	void addAttribute(string name, string value);	
 	void saveToFile(string fileName, const bool prettyPrint) const;
+	bool isValidAttributeName(const string attributeName) const;
+	bool isValidElementName(const string elementName) const;
 protected:
 	stack<CXMLElement*>* _currentElement;
 	CXMLElement* _root;	
-	bool isValidAttributeName(const string attributeName) const;
-	bool isValidElementName(const string elementName) const;
+
 };
 

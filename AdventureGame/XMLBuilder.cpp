@@ -3,6 +3,49 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <regex>
+
+
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+#include <locale>
+
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+		std::not1(std::ptr_fun<int, int>(std::isspace))));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+		std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+	ltrim(s);
+	rtrim(s);
+}
+
+// trim from start (copying)
+static inline std::string ltrimmed(std::string s) {
+	ltrim(s);
+	return s;
+}
+
+// trim from end (copying)
+static inline std::string rtrimmed(std::string s) {
+	rtrim(s);
+	return s;
+}
+
+// trim from both ends (copying)
+static inline std::string trimmed(std::string s) {
+	trim(s);
+	return s;
+}
 
 CXMLBuilder::CXMLBuilder(string rootName)
 {	
@@ -17,8 +60,14 @@ CXMLBuilder::~CXMLBuilder()
 	delete _currentElement;
 }
 
-// Todo: need to check that element name is valid.
 void CXMLBuilder::addElement(string elementName) {	
+	trim(elementName);
+	if (!isValidElementName(elementName)) {
+		stringstream ss = stringstream();
+		ss << "Invalid attributename: " << elementName << endl;
+		throw(MyException(ss.str()));
+	}
+
 	CXMLElement* lElement = new CXMLElement(elementName);		
 	_currentElement->top()->addElement(lElement);
 	_currentElement->push(lElement);
@@ -28,14 +77,20 @@ void CXMLBuilder::finishElement() {
 	_currentElement->pop();
 }
 
-// Todo: need to check that attribute names are valid.
-void CXMLBuilder::addAttribute(string &name, string &value) {
-	if (_currentElement->empty()) {
-		return;
+
+void CXMLBuilder::addAttribute(string name, string value) {
+	trim(name);
+	if (!isValidAttributeName(name)) {
+		stringstream ss = stringstream();
+		ss << "Invalid attributename: " << name << endl;
+		throw(MyException(ss.str()));
 	}
 
+	trim(value);
 	_currentElement->top()->addAttribute(name, value);
 }
+
+// Todo: add verification if the file already exists.
 
 void CXMLBuilder::saveToFile(string fileName, const bool prettyPrint) const {
 	ofstream* file = new ofstream();
@@ -52,13 +107,13 @@ void CXMLBuilder::saveToFile(string fileName, const bool prettyPrint) const {
 }
 
 bool CXMLBuilder::isValidAttributeName(const string attributeName) const {
-
-	return true;
+	regex pattern("[a-zA-Z_:]([a-zA-Z0-9_:.])*");	
+	return regex_match(attributeName, pattern);
 }
 
 bool CXMLBuilder::isValidElementName(const string elementName) const {
-
-	return true;
+	regex pattern("[a-zA-Z_:]([a-zA-Z0-9_:.])*");
+	return regex_match(elementName, pattern);
 }
 
 ////////////////////////////// Element ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,4 +198,19 @@ void CXMLElement::addXMLEndTag(stringstream& ss, const int level, const bool pre
 	if (prettyPrint) {
 		ss << endl;
 	}
+}
+
+
+///////////////////////
+
+MyException::MyException(string message) {
+	_message = message;
+}
+
+MyException::~MyException() {
+	
+}
+
+string MyException::getMessage() {
+	return string(_message);
 }
