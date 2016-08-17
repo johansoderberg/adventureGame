@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 #include "Location.h"
+
 
 
 CLocation::CLocation(string name, string shortDesc, string longDesc)
@@ -96,6 +98,46 @@ string CLocation::StringToLower(string *str) {
 	return result;
 }
 
+
+void CLocation::exportToXML(CXMLBuilder& xb) {
+	// Verify that the object hasn't been added before.
+	if (xb.isObjectAdded(this)) {
+		return;
+	}
+
+	xb.addElement("location", this);
+	xb.addAttribute("name", *_name);
+
+	if (getshortDescription().size() > 0) {
+		xb.addElement("shortDescription", NULL);
+		xb.addText(getshortDescription());
+		xb.finishElement(); // Short desc
+	}
+
+	if (getLongDescription().size() > 0) {
+		xb.addElement("longDescription", NULL);
+		xb.addText(getLongDescription());
+		xb.finishElement(); // long desc.
+	}
+
+	// Export all exits.
+	for (map<string, CExit*>::iterator i = exits->begin(); i != exits->end(); i++) {
+		CExit* exit = i->second;
+		xb.addElement("exit", exit);
+		xb.addAttribute("name", exit->getName());
+		xb.addAttribute("leadsTo", exit->getLocation()->getName());
+		xb.finishElement();
+	}
+
+	xb.finishElement(); // location
+
+	// export all adjacent locations.
+	for (map<string, CExit*>::iterator i = exits->begin(); i != exits->end(); i++) {
+		CExit* exit = i->second;	
+		CLocation* loc = exit->getLocation();
+		loc->exportToXML(xb);		
+	}	
+}
 
 /////////////////////////////////////////////
 

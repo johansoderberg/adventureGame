@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include <iostream>
+#include <algorithm>
 #include "Game.h"
 #include "HelpCommand.h"
 #include "TestCommand.h"
-#include <algorithm>
-
+#include "XMLBuilder.h"
 
 CGame::CGame(string playerName, CLocation* startingLocation)
 {	
@@ -87,6 +87,15 @@ void CGame::describeLocation() {
 
 	cout << "You are in " << (loc->getName()) << ".\n";
 	cout << loc->DescribeExits();
-
 }
 
+void CGame::exportWorldAsXML(string fileName) {
+	try {
+		CXMLBuilder xb = CXMLBuilder(string("gameWorld"));
+		rootLocation->exportToXML(xb);
+		xb.exportXMLToFile(string("gameWorld.xml"), true);
+	}
+	catch (CXMLException E) {
+		cout << E.getMessage();
+	}
+}

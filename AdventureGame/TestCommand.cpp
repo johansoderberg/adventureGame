@@ -30,36 +30,43 @@ void TestAttributeName(stringstream& ss, CXMLBuilder& XB, string attributeName) 
 }
 
 string CTestCommand::call() {
+	/*
 	stringstream ss = stringstream();
 	ss << "Creating XML Builder" << endl;
 
 	CXMLBuilder XB = CXMLBuilder("testObject");
 	ss << "XMLBuilder created:\n";	
+
 	try {
-		XB.addElement("subElement");
+	
+		XB.addElement("subElement", NULL);
 		XB.addAttribute(string("attributeName1"), string("attribute value1"));
 		XB.addAttribute(string(" attributeName2"), string("attribute value2"));
 		XB.finishElement();
 
-		XB.addElement("subElement");
+		XB.addElement("subElement", NULL);
 		XB.addAttribute(string("attributeName1"), string("attribute value3"));
 		XB.addAttribute(string("attributeName5 "), string("attribute value4"));
 
-		XB.addElement("subElement");
+		XB.addElement("subElement", NULL);
 		XB.addAttribute(string("attributeName1"), string("attribute value1"));
+		XB.addText(string("This is a test to add text"));
 		XB.addAttribute(string("attributeName2"), string("attribute value2"));
 		XB.finishElement();
 
 		XB.finishElement();
 
-		XB.saveToFile("test_pretty.xml", true);
-		XB.addElement("test");
-		XB.saveToFile("test.xml", false);
+		
+		XB.addElement("test", NULL);
+		XB.finishElement();
+		XB.exportXMLToFile(string("test.xml"), false);
+		XB.exportXMLToFile(string("test_pretty.xml"), true);
+		
 	}
-	catch (MyException E) {
+	catch (CXMLException E) {
 		cout << "Exception caught: " << E.getMessage();
 	}
-		
+
 	ss << "Testing attributenames" << endl;
 	TestAttributeName(ss, XB, "Hello world");
 	TestAttributeName(ss, XB, "helloworld");
@@ -72,6 +79,11 @@ string CTestCommand::call() {
 
 
 	return ss.str();
+
+	*/
+	_game->exportWorldAsXML("test_pretty.xml");
+	return "World exported";
+
 }
 
 string CTestCommand::getCommandHelp() {

@@ -21,7 +21,7 @@ public:
 	bool gameOver = false;
 	CLocation* rootLocation;
 	static bool stringCompareLC(string* str1, string* str2);
-	
+	void exportWorldAsXML(string fileName);
 	CPlayer* player;
 protected:	
 	void playRound();

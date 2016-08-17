@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include "XMLBuilder.h"
 
 
 using namespace std;
@@ -21,6 +22,7 @@ public:
 	void connectDual(string exitName, CLocation* location, string remoteExitName);
 	string DescribeExits();
 	CExit* getExit(string ExitName);
+	void exportToXML(CXMLBuilder& xb);
 protected:
 	string* _name;
 	string* _shortDesc;

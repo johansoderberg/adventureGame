@@ -52,25 +52,45 @@ CXMLBuilder::CXMLBuilder(string rootName)
 	_currentElement = new stack<CXMLElement*>();
 	_root = new CXMLElement(rootName);
 	_currentElement->push(_root);	
+	_uniqueObjects = new list<void*>();
 }
 
 
 CXMLBuilder::~CXMLBuilder()
 {	
 	delete _currentElement;
+	delete _uniqueObjects;
 }
 
-void CXMLBuilder::addElement(string elementName) {	
+void CXMLBuilder::addElement(string elementName, void* uniqueObject) {
 	trim(elementName);
 	if (!isValidElementName(elementName)) {
 		stringstream ss = stringstream();
 		ss << "Invalid attributename: " << elementName << endl;
-		throw(MyException(ss.str()));
+		throw(CXMLException(ss.str()));
 	}
 
-	CXMLElement* lElement = new CXMLElement(elementName);		
+	CXMLElement* lElement = new CXMLElement(elementName);
 	_currentElement->top()->addElement(lElement);
 	_currentElement->push(lElement);
+
+	if (uniqueObject != NULL) {
+	_uniqueObjects->push_back(uniqueObject);
+	}
+}
+
+bool CXMLBuilder::isObjectAdded(void* uniqueObject) {
+	if (_uniqueObjects->empty()) {
+		return false;
+	}
+
+	for (list<void*>::iterator i = _uniqueObjects->begin(); i != _uniqueObjects->end(); i++) {		
+		if (uniqueObject == *i) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CXMLBuilder::finishElement() {
@@ -78,24 +98,34 @@ void CXMLBuilder::finishElement() {
 }
 
 
-void CXMLBuilder::addAttribute(string name, string value) {
+void CXMLBuilder::addAttribute(string name, string& value) {
 	trim(name);
 	if (!isValidAttributeName(name)) {
 		stringstream ss = stringstream();
 		ss << "Invalid attributename: " << name << endl;
-		throw(MyException(ss.str()));
+		throw(CXMLException(ss.str()));
 	}
 
 	trim(value);
 	_currentElement->top()->addAttribute(name, value);
 }
 
+void CXMLBuilder::addText(string& text) {
+	CXMLTextElement* textElement = new CXMLTextElement(text);
+	_currentElement->top()->addElement(textElement);
+}
+
+
 // Todo: add verification if the file already exists.
 
-void CXMLBuilder::saveToFile(string fileName, const bool prettyPrint) const {
+void CXMLBuilder::exportXMLToFile(string& fileName, const bool& prettyPrint) const {
 	ofstream* file = new ofstream();
 	file->open(fileName);
-	*file << "<?xml version=\"1.0\" encoding=\"UTF - 8\"?>" << endl;
+	*file << "<?xml version=\"1.0\" encoding=\"UTF - 8\"?>";
+	
+	if (prettyPrint) {
+		*file << endl;
+	}
 
 	stringstream* ss = new stringstream();
 
@@ -121,7 +151,7 @@ bool CXMLBuilder::isValidElementName(const string elementName) const {
 CXMLElement::CXMLElement(string ElementName) {
 	_elementName = new string(ElementName);
 	_attributes = new list<string*>();
-	_subElements = new list<CXMLElement*>() ;
+	_subElements = new list<CXMLComposite*>() ;
 }
 
 CXMLElement::~CXMLElement() {
@@ -147,7 +177,9 @@ void CXMLElement::addAttribute(string &name, string &value) {
 	_attributes->push_back(new string(ss.str()));
 }
 
-void CXMLElement::addElement(CXMLElement* element){
+
+
+void CXMLElement::addElement(CXMLComposite* element){
 	_subElements->push_back(element);
 }
 
@@ -155,12 +187,15 @@ void CXMLElement::addXMLData(stringstream& ss, const int level, const bool prett
 	addXMLStartTag(ss, level + 1, prettyPrint);
 
 	// Add elements
-	for (list<CXMLElement*>::iterator i = _subElements->begin(); i != _subElements->end(); i++) {		
-		CXMLElement* lElement = *i;
+	for (list<CXMLComposite*>::iterator i = _subElements->begin(); i != _subElements->end(); i++) {
+		CXMLComposite* lElement = *i;
 		lElement->addXMLData(ss, level + 1, prettyPrint);
 	}
 
-	addXMLEndTag(ss, level + 1, prettyPrint);
+	// unless single tag, add end tag.
+	if (_subElements->size() > 0) {
+		addXMLEndTag(ss, level + 1, prettyPrint);
+	}
 }
 
 void CXMLElement::addXMLStartTag(stringstream& ss, const int level, const bool prettyPrint) const {
@@ -180,7 +215,13 @@ void CXMLElement::addXMLStartTag(stringstream& ss, const int level, const bool p
 		}		
 	}		
 
-	ss << ">";
+	if (_subElements->size() == 0) {
+		ss << "/>";
+	}
+	else{
+		ss << ">";
+	}
+	
 	if (prettyPrint) {
 		ss << endl;
 	}
@@ -193,7 +234,7 @@ void CXMLElement::addXMLEndTag(stringstream& ss, const int level, const bool pre
 		}
 	}
 
-	ss << "<\\" << string(*_elementName) << ">";
+	ss << "</" << string(*_elementName) << ">";
 
 	if (prettyPrint) {
 		ss << endl;
@@ -203,14 +244,45 @@ void CXMLElement::addXMLEndTag(stringstream& ss, const int level, const bool pre
 
 ///////////////////////
 
-MyException::MyException(string message) {
+CXMLException::CXMLException(string message) {
 	_message = message;
 }
 
-MyException::~MyException() {
+CXMLException::~CXMLException() {
 	
 }
 
-string MyException::getMessage() {
+string CXMLException::getMessage() {
 	return string(_message);
+}
+
+////////////////////// 
+
+CXMLTextElement::CXMLTextElement(string& text) {
+	_text = new string(trimmed(text));
+}
+
+CXMLTextElement::~CXMLTextElement() {
+	delete _text;
+}
+
+void CXMLTextElement::addXMLData(stringstream& ss, const int level, const bool prettyPrint) const {
+	if (prettyPrint) {
+		for (int i = 0; i != level; i++) {
+			ss << "\t";
+		}
+	}
+
+	ss << *_text;
+
+	if (prettyPrint) {
+		ss << endl;
+	}
+}
+
+
+/////////CXMLComposite
+
+CXMLComposite::~CXMLComposite() {
+
 }
