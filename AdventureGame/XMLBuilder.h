@@ -24,11 +24,13 @@ class CXMLBuilder
 public:
 	CXMLBuilder(string rootName);
 	virtual ~CXMLBuilder();
-	void addElement(string elementName, void* uniqueObject);
+	void startElement(string elementName, void* uniqueObject);
 	void finishElement();
 	void addAttribute(string name, string& value);
-	void addText(string& text);
-	void exportXMLToFile(string& fileName, const bool& prettyPrint) const;
+	void addText(string text);
+	void addCData(string data);
+	void addComment(string comment);
+	void exportXMLToFile(string fileName, const bool& prettyPrint) const;
 	bool isValidAttributeName(const string attributeName) const;
 	bool isValidElementName(const string elementName) const;
 	bool isObjectAdded(void* uniqueObject);
@@ -36,5 +38,7 @@ protected:
 	stack<CXMLElement*>* _currentElement;
 	CXMLElement* _root;
 	list<void*>* _uniqueObjects;
+	// This pattern is a bit too restrictive.
+	const string attributeNamePattern = "[a-zA-Z_:]([a-zA-Z0-9_:.])*";
 };
 

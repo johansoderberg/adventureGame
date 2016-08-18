@@ -4,8 +4,6 @@
 #include <iostream>
 #include "Location.h"
 
-
-
 CLocation::CLocation(string name, string shortDesc, string longDesc)
 {	
 	_name = new string(name);
@@ -13,7 +11,6 @@ CLocation::CLocation(string name, string shortDesc, string longDesc)
 	_longDesc = new string(longDesc);
 	exits = new map < string, CExit*>();
 }
-
 
 CLocation::~CLocation()
 {
@@ -23,13 +20,10 @@ CLocation::~CLocation()
 	delete exits;
 }
 
-
-
 string CLocation::getshortDescription()
 {
 	return string(*_shortDesc);
 }
-
 
 string CLocation::getLongDescription()
 {
@@ -47,12 +41,10 @@ void CLocation::connectDual(string exitName, CLocation * location, string remote
 	location->connect(remoteExitName, this);
 }
 
-
 string CLocation::getName()
 {
 	return string(*_name);
 }
-
 
 string CLocation::DescribeExits() {
 	if (exits->size() == 0) {
@@ -78,10 +70,7 @@ string CLocation::DescribeExits() {
 	return strb.str();
 }
 
-
-
-CExit * CLocation::getExit(string ExitName)
-{
+CExit * CLocation::getExit(string ExitName){
 	try {
 		string tmp = StringToLower(&ExitName);
 		return exits->at(tmp);
@@ -91,13 +80,11 @@ CExit * CLocation::getExit(string ExitName)
 	}
 }
 
-
 string CLocation::StringToLower(string *str) {
 	string result = string(*str);
 	transform(str->begin(), str->end(), result.begin(), tolower);
 	return result;
 }
-
 
 void CLocation::exportToXML(CXMLBuilder& xb) {
 	// Verify that the object hasn't been added before.
@@ -105,25 +92,32 @@ void CLocation::exportToXML(CXMLBuilder& xb) {
 		return;
 	}
 
-	xb.addElement("location", this);
+	xb.startElement("location", this);
 	xb.addAttribute("name", *_name);
 
 	if (getshortDescription().size() > 0) {
-		xb.addElement("shortDescription", NULL);
+		xb.startElement("shortDescription", NULL);
 		xb.addText(getshortDescription());
 		xb.finishElement(); // Short desc
 	}
 
 	if (getLongDescription().size() > 0) {
-		xb.addElement("longDescription", NULL);
+		xb.startElement("longDescription", NULL);
 		xb.addText(getLongDescription());
 		xb.finishElement(); // long desc.
 	}
 
+	/*
+	xb.addComment("Adding a comment too.");
+	xb.addText("Adding a little text with quots \". At least two of them \" and some others && \' < ><> < >	");
+	xb.addComment("This comment contains \" characters = that are valid in comments such as < and >. Not to mention: \' ");
+	xb.addCData("this is a CData section. It can contain anything such as \" \' & <!-- <> ");
+	*/
+
 	// Export all exits.
 	for (map<string, CExit*>::iterator i = exits->begin(); i != exits->end(); i++) {
 		CExit* exit = i->second;
-		xb.addElement("exit", exit);
+		xb.startElement("exit", exit);
 		xb.addAttribute("name", exit->getName());
 		xb.addAttribute("leadsTo", exit->getLocation()->getName());
 		xb.finishElement();

@@ -4,8 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
-
-
 #include <algorithm> 
 #include <functional> 
 #include <cctype>
@@ -58,11 +56,12 @@ CXMLBuilder::CXMLBuilder(string rootName)
 
 CXMLBuilder::~CXMLBuilder()
 {	
+	delete _root;
 	delete _currentElement;
 	delete _uniqueObjects;
 }
 
-void CXMLBuilder::addElement(string elementName, void* uniqueObject) {
+void CXMLBuilder::startElement(string elementName, void* uniqueObject) {
 	trim(elementName);
 	if (!isValidElementName(elementName)) {
 		stringstream ss = stringstream();
@@ -110,15 +109,23 @@ void CXMLBuilder::addAttribute(string name, string& value) {
 	_currentElement->top()->addAttribute(name, value);
 }
 
-void CXMLBuilder::addText(string& text) {
+void CXMLBuilder::addText(string text){
 	CXMLTextElement* textElement = new CXMLTextElement(text);
 	_currentElement->top()->addElement(textElement);
 }
 
+void CXMLBuilder::addComment(string comment) {
+	CXMLComment* _comment = new CXMLComment(comment);
+	_currentElement->top()->addElement(_comment);
+}
+
+void CXMLBuilder::addCData(string data) {
+	CXMLCData* _data = new CXMLCData(data);
+	_currentElement->top()->addElement(_data);
+}
 
 // Todo: add verification if the file already exists.
-
-void CXMLBuilder::exportXMLToFile(string& fileName, const bool& prettyPrint) const {
+void CXMLBuilder::exportXMLToFile(string fileName, const bool& prettyPrint) const {
 	ofstream* file = new ofstream();
 	file->open(fileName);
 	*file << "<?xml version=\"1.0\" encoding=\"UTF - 8\"?>";
@@ -136,13 +143,14 @@ void CXMLBuilder::exportXMLToFile(string& fileName, const bool& prettyPrint) con
 	delete ss;
 }
 
+
 bool CXMLBuilder::isValidAttributeName(const string attributeName) const {
-	regex pattern("[a-zA-Z_:]([a-zA-Z0-9_:.])*");	
+	regex pattern(attributeNamePattern);
 	return regex_match(attributeName, pattern);
 }
 
 bool CXMLBuilder::isValidElementName(const string elementName) const {
-	regex pattern("[a-zA-Z_:]([a-zA-Z0-9_:.])*");
+	regex pattern(attributeNamePattern);
 	return regex_match(elementName, pattern);
 }
 
@@ -176,8 +184,6 @@ void CXMLElement::addAttribute(string &name, string &value) {
 	ss << name << "=\"" << value << "\"";
 	_attributes->push_back(new string(ss.str()));
 }
-
-
 
 void CXMLElement::addElement(CXMLComposite* element){
 	_subElements->push_back(element);
@@ -249,7 +255,7 @@ CXMLException::CXMLException(string message) {
 }
 
 CXMLException::~CXMLException() {
-	
+
 }
 
 string CXMLException::getMessage() {
@@ -259,7 +265,7 @@ string CXMLException::getMessage() {
 ////////////////////// 
 
 CXMLTextElement::CXMLTextElement(string& text) {
-	_text = new string(trimmed(text));
+	_text = new string(encodeText(trimmed(text)));
 }
 
 CXMLTextElement::~CXMLTextElement() {
@@ -281,8 +287,89 @@ void CXMLTextElement::addXMLData(stringstream& ss, const int level, const bool p
 }
 
 
+// There are five characters that needs to be reaplced.
+// "   &quot;
+// '   &apos;
+// <   &lt;
+// >   &gt;
+// &   &amp;
+
+string CXMLTextElement::encodeText(string text) {
+	// have to start with ampersand since it will be introduced into the result too. 
+	stringstream ss = stringstream();
+	for (string::iterator i = text.begin(); i != text.end(); i++) {
+		if (*i == '&')
+			ss << "&amp";
+		else if (*i == '\'')
+			ss << "&apos";
+		else if (*i == '\"')
+			ss << "&quot";
+		else if (*i == '<')
+			ss << "&lt";
+		else if (*i == '>')
+			ss << "&gt";
+		else
+			ss << *i;
+	}
+
+	return ss.str();
+}
+
 /////////CXMLComposite
 
 CXMLComposite::~CXMLComposite() {
 
 }
+
+///////// CXMLComment
+
+CXMLComment::CXMLComment(string& comment) {
+	_comment = new string(comment);
+}
+
+CXMLComment::~CXMLComment() {
+	delete _comment;
+}
+
+void CXMLComment::addXMLData(stringstream& ss, const int level, const bool prettyPrint) const {
+	if (prettyPrint) {
+		for (int i = 0; i != level; i++) {
+			ss << "\t";
+		}
+	}
+
+	ss << commentStart << *_comment << commentEnd;
+
+	if (prettyPrint) {
+		ss << endl;
+	}
+}
+
+/// CData
+
+CXMLCData::CXMLCData(string& CData) {
+	if (CData.find(CDataEnd, 0) != string::npos){
+		throw CXMLException("Invalid CData section: contains CData end sequence. This data needs to be escaped by caller. ");
+	}
+	_CData = new string(CData);
+}
+
+CXMLCData::~CXMLCData() {
+	delete _CData;
+}
+
+void CXMLCData::addXMLData(stringstream& ss, const int level, const bool prettyPrint) const {
+	if (prettyPrint) {
+		for (int i = 0; i != level; i++) {
+			ss << "\t";
+		}
+	}
+
+	ss << CDataStart << *_CData << CDataEnd;
+
+	if (prettyPrint) {
+		ss << endl;
+	}
+}
+
+
