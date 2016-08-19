@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "AGCommand.h"
-#include <algorithm>
+#include "PAPStringUtil.h"
 
 using namespace std;
 
@@ -67,7 +67,7 @@ string CAGExamineCommand::call() {
 
 	CLocation * currLoc = _game->player->getCurrentLocation();
 
-	if (_game->stringCompareLC(&thing, &(currLoc->getName()))){
+	if (strCompareLC(thing, (currLoc->getName()))){
 		return currLoc->getLongDescription();
 	}
 

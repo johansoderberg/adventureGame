@@ -1,10 +1,16 @@
 #include "stdafx.h"
 #include <iostream>
-#include <algorithm>
 #include "Game.h"
 #include "HelpCommand.h"
 #include "TestCommand.h"
-#include "XMLBuilder.h"
+#include "PAPXMLBuilder.h"
+#include "irrXML.h"
+#include "PAPStringUtil.h"
+
+using namespace irr;
+using namespace io;
+
+
 
 CGame::CGame(string playerName, CLocation* startingLocation)
 {	
@@ -59,13 +65,6 @@ void CGame::playRound() {
 	cout << "\n";
 }
 
-bool CGame::stringCompareLC(string* str1, string* str2) {
-	string tmp1 = string(*str1);
-	string tmp2 = string(*str2);
-	transform(str1->begin(), str1->end(), tmp1.begin(), tolower);
-	transform(str2->begin(), str2->end(), tmp2.begin(), tolower);
-	return ((tmp1.compare(tmp2)) == 0);
-}
 
 CAGCommand* CGame::getCommand(string commandStr) {
 	list<CAGCommand*>::iterator itr = _commands.begin();	
@@ -74,7 +73,7 @@ CAGCommand* CGame::getCommand(string commandStr) {
 		CAGCommand* cmd = *itr;		
 	
 		string tmp = cmd->getCommandName();
-		if (stringCompareLC(&tmp, &commandStr)) {
+		if (strCompareLC(tmp, commandStr)) {
 			return cmd;
 		}
 		itr++;
@@ -98,4 +97,31 @@ void CGame::exportWorldAsXML(string fileName) {
 	catch (CXMLException E) {
 		cout << E.getMessage();
 	}
+}
+
+void CGame::importWorldFromXML(string fileName) {
+	IrrXMLReader* xml = createIrrXMLReader("gameWorld.xml");
+
+	while (xml->read()) {
+		switch (xml->getNodeType()) {
+		case EXN_ELEMENT:
+				
+			break;
+		case EXN_ELEMENT_END:
+
+			break;
+		case EXN_TEXT:
+
+			break;
+		case EXN_COMMENT:
+
+			break;
+		case EXN_CDATA:
+
+			break;
+		}
+
+	}
+
+	delete xml;
 }

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <sstream>
-#include <algorithm>
 #include <iostream>
+#include "PAPStringUtil.h"
 #include "Location.h"
 
 CLocation::CLocation(string name, string shortDesc, string longDesc)
@@ -32,7 +32,7 @@ string CLocation::getLongDescription()
 
 void CLocation::connect(string exitName, CLocation * location)
 {
-	exits->insert(std::pair<string, CExit*> (StringToLower(&exitName), new CExit(location, exitName)));
+	exits->insert(std::pair<string, CExit*> (strToLower(&exitName), new CExit(location, exitName)));
 }
 
 void CLocation::connectDual(string exitName, CLocation * location, string remoteExitName)
@@ -72,7 +72,7 @@ string CLocation::DescribeExits() {
 
 CExit * CLocation::getExit(string ExitName){
 	try {
-		string tmp = StringToLower(&ExitName);
+		string tmp = strToLower(&ExitName);
 		return exits->at(tmp);
 	}
 	catch (out_of_range) {
@@ -80,11 +80,7 @@ CExit * CLocation::getExit(string ExitName){
 	}
 }
 
-string CLocation::StringToLower(string *str) {
-	string result = string(*str);
-	transform(str->begin(), str->end(), result.begin(), tolower);
-	return result;
-}
+
 
 void CLocation::exportToXML(CXMLBuilder& xb) {
 	// Verify that the object hasn't been added before.

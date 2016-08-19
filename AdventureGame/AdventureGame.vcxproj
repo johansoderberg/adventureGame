@@ -146,16 +146,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGCommand.h" />
+    <ClInclude Include="CXMLReaderImpl.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="fast_atof.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="PAPStringUtil.h" />
+    <ClInclude Include="heapsort.h" />
     <ClInclude Include="HelpCommand.h" />
+    <ClInclude Include="irrArray.h" />
+    <ClInclude Include="irrString.h" />
+    <ClInclude Include="irrTypes.h" />
+    <ClInclude Include="irrXML.h" />
     <ClInclude Include="Items.h" />
     <ClInclude Include="Location.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestCommand.h" />
-    <ClInclude Include="XMLBuilder.h" />
+    <ClInclude Include="PAPXMLBuilder.h" />
+    <ClInclude Include="PAPXMLElements.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdventureGame.cpp" />
@@ -163,8 +172,10 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HelpCommand.cpp" />
+    <ClCompile Include="irrXML.cpp" />
     <ClCompile Include="Items.cpp" />
     <ClCompile Include="Location.cpp" />
+    <ClCompile Include="PAPStringUtil.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -173,7 +184,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestCommand.cpp" />
-    <ClCompile Include="XMLBuilder.cpp" />
+    <ClCompile Include="PAPXMLBuilder.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

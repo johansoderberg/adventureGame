@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "TestCommand.h"
 #include <sstream>
-#include "XMLBuilder.h"
-
+#include "PAPXMLBuilder.h"
 
 CTestCommand::CTestCommand(CGame* game)
 	: CAGCommand(game)

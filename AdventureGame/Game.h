@@ -16,16 +16,21 @@ class CGame
 public:
 	CGame(string playerName, CLocation* startingLocation);
 	~CGame();
-	void play();
 	list<CAGCommand*> _commands;
-	bool gameOver = false;
 	CLocation* rootLocation;
-	static bool stringCompareLC(string* str1, string* str2);
+	/* Starts the game loop.*/
+	bool gameOver = false;
+	void play();	
+	/* Exports the world to XML.*/
 	void exportWorldAsXML(string fileName);
+	/* Import the game world from XML. */
+	void importWorldFromXML(string fileName);
 	CPlayer* player;
-protected:	
+protected:
 	void playRound();
+	
 	CAGCommand* getCommand(string commandStr);
-	void describeLocation();
+	void describeLocation();	
 };
+
 

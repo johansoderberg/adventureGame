@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include "XMLBuilder.h"
+#include "PAPXMLBuilder.h"
 
 
 using namespace std;
@@ -28,7 +28,6 @@ protected:
 	string* _shortDesc;
 	string* _longDesc;
 	map<string, CExit*>* exits;
-	static string StringToLower(string* str);
 };
 
 class CExit
