@@ -1,16 +1,11 @@
 #include "stdafx.h"
 #include <iostream>
+
 #include "Game.h"
 #include "HelpCommand.h"
 #include "TestCommand.h"
 #include "PAPXMLBuilder.h"
-#include "irrXML.h"
 #include "PAPStringUtil.h"
-
-using namespace irr;
-using namespace io;
-
-
 
 CGame::CGame(string playerName, CLocation* startingLocation)
 {	
@@ -94,34 +89,7 @@ void CGame::exportWorldAsXML(string fileName) {
 		rootLocation->exportToXML(xb);
 		xb.exportXMLToFile(string("gameWorld.xml"), true);
 	}
-	catch (CXMLException E) {
+	catch (PAPException E) {
 		cout << E.getMessage();
 	}
-}
-
-void CGame::importWorldFromXML(string fileName) {
-	IrrXMLReader* xml = createIrrXMLReader("gameWorld.xml");
-
-	while (xml->read()) {
-		switch (xml->getNodeType()) {
-		case EXN_ELEMENT:
-				
-			break;
-		case EXN_ELEMENT_END:
-
-			break;
-		case EXN_TEXT:
-
-			break;
-		case EXN_COMMENT:
-
-			break;
-		case EXN_CDATA:
-
-			break;
-		}
-
-	}
-
-	delete xml;
 }

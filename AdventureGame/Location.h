@@ -23,6 +23,9 @@ public:
 	string DescribeExits();
 	CExit* getExit(string ExitName);
 	void exportToXML(CXMLBuilder& xb);
+	static const string STR_SHORT_DESCRIPTION ;
+	static const string STR_LONG_DESCRIPTION;
+	static const string STR_NAME;
 protected:
 	string* _name;
 	string* _shortDesc;

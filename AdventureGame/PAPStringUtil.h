@@ -4,7 +4,7 @@
 using namespace std;
 
 // Compares two strings case insensitively by tranforming both to lowercase first.
-bool strCompareLC(string& str1, string& str2);
+bool strCompareLC(const string str1, const string str2);
 
 // Trim a string from start (modifies the reference)
 void trimFromLeft(std::string &s);

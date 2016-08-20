@@ -29,7 +29,7 @@ void CXMLBuilder::startElement(string elementName, void* uniqueObject) {
 	if (!isValidElementName(elementName)) {
 		stringstream ss = stringstream();
 		ss << "Invalid attributename: " << elementName << endl;
-		throw(CXMLException(ss.str()));
+		throw(PAPException(ss.str()));
 	}
 
 	CXMLElement* lElement = new CXMLElement(elementName);
@@ -65,7 +65,7 @@ void CXMLBuilder::addAttribute(string name, string& value) {
 	if (!isValidAttributeName(name)) {
 		stringstream ss = stringstream();
 		ss << "Invalid attributename: " << name << endl;
-		throw(CXMLException(ss.str()));
+		throw(PAPException(ss.str()));
 	}
 
 	trim(value);
@@ -213,15 +213,15 @@ void CXMLElement::addXMLEndTag(stringstream& ss, const int level, const bool pre
 
 ///////////////////////
 
-CXMLException::CXMLException(string message) {
+PAPException::PAPException(string message) {
 	_message = message;
 }
 
-CXMLException::~CXMLException() {
+PAPException::~PAPException() {
 
 }
 
-string CXMLException::getMessage() {
+string PAPException::getMessage() {
 	return string(_message);
 }
 
@@ -312,7 +312,7 @@ void CXMLComment::addXMLData(stringstream& ss, const int level, const bool prett
 
 CXMLCData::CXMLCData(string& CData) {
 	if (CData.find(CDataEnd, 0) != string::npos){
-		throw CXMLException("Invalid CData section: contains CData end sequence. This data needs to be escaped by caller. ");
+		throw PAPException("Invalid CData section: contains CData end sequence. This data needs to be escaped by caller. ");
 	}
 	_CData = new string(CData);
 }

@@ -9,14 +9,75 @@
 #include "AGCommand.h"
 #include "Player.h"
 #include "HelpCommand.h"
+#include "PAPStringUtil.h"
+#include "irrXML.h"
 
 using namespace std;
+using namespace irr;
+using namespace io;
 
-void createWorld(CLocation* start) {
+CLocation* createWorld(string fileName) {
+	IrrXMLReader* xml = createIrrXMLReader(fileName.c_str());
+
+	string lName;
+	CLocation* start = NULL;
+
+	while (xml->read()) {
+		switch (xml->getNodeType()) {
+		case EXN_ELEMENT:
+			lName = xml->getNodeName();
+			if (strCompareLC(lName, string("location"))) {
+				// create a location. Must get all the attributes first.
+				string lShortDescription;
+				string lLongDescription;
+
+				for (int i = 0; i < xml->getAttributeCount(); i++) {
+					if (strCompareLC(xml->getAttributeName(i), CLocation::STR_SHORT_DESCRIPTION)) {
+						lShortDescription = xml->getAttributeValue(i);
+					}
+					else
+						if (strCompareLC(xml->getAttributeName(i), CLocation::STR_LONG_DESCRIPTION)) {
+							lLongDescription = xml->getAttributeValue(i);
+						}
+						else
+							if (strCompareLC(xml->getAttributeName(i), CLocation::STR_NAME)) {
+								lName = xml->getAttributeValue(i);
+							}
+
+				}
+
+				CLocation* loc = new CLocation(lName, lShortDescription, lLongDescription);
+				if (start == NULL) {
+					start = loc;
+				}
+			}
+			break;
+		case EXN_ELEMENT_END:
+
+			break;
+		case EXN_TEXT:
+
+			break;
+		case EXN_COMMENT:
+
+			break;
+		case EXN_CDATA:
+
+			break;
+		}
+
+	}
+
+	delete xml;
+	return NULL;
+
+	/*
 	CLocation* loc = new CLocation("Hallway", "The hallway outside your appartment.", "The hallways is semi dark and cold.");
 	CLocation* loc2 = new CLocation("Staircase", "The staircase in the building.", "The stair case is old and dark.");
 	start->connectDual("Door", loc, "AppartmentDoor");
 	loc->connectDual("Staircase", loc2, "Up");
+
+	*/
 }
 
 int main()
@@ -31,9 +92,12 @@ int main()
 		cout << "What's your name? ";
 		cin >> playerName;
 
-		startLocation = new CLocation("appartment", "Your appartment is where you live.", "The appartment is kind of small and not very nice. It is almost empty.");
-		
-		createWorld(startLocation);
+		startLocation =	createWorld("gameWorld.xml");
+
+		if (startLocation == NULL) {
+			cout << "No startin gpoint provided. Exiting.\n";
+			return 0;
+		}
 
 		try {
 			game = new CGame(playerName, startLocation);

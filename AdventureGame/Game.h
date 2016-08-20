@@ -22,9 +22,7 @@ public:
 	bool gameOver = false;
 	void play();	
 	/* Exports the world to XML.*/
-	void exportWorldAsXML(string fileName);
-	/* Import the game world from XML. */
-	void importWorldFromXML(string fileName);
+	void exportWorldAsXML(string fileName);	
 	CPlayer* player;
 protected:
 	void playRound();

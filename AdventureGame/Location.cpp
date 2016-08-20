@@ -4,6 +4,11 @@
 #include "PAPStringUtil.h"
 #include "Location.h"
 
+const string CLocation::STR_SHORT_DESCRIPTION = "shortDescription";
+const string CLocation::STR_LONG_DESCRIPTION = "shortDescription";
+const string CLocation::STR_NAME = "shortDescription";
+
+
 CLocation::CLocation(string name, string shortDesc, string longDesc)
 {	
 	_name = new string(name);
@@ -92,7 +97,7 @@ void CLocation::exportToXML(CXMLBuilder& xb) {
 	xb.addAttribute("name", *_name);
 
 	if (getshortDescription().size() > 0) {
-		xb.startElement("shortDescription", NULL);
+		xb.startElement(STR_SHORT_DESCRIPTION, NULL);
 		xb.addText(getshortDescription());
 		xb.finishElement(); // Short desc
 	}
